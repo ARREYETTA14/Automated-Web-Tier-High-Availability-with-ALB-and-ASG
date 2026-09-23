@@ -33,7 +33,8 @@ Before creating the load balancer or instances, we need a Security Group that al
 4. Under Inbound rules, add the following three rules:
     - Rule 1: Type: ```HTTP``` | Source: ```Anywhere-IPv4 (0.0.0.0/0)```
 	- Rule 2: Type: ```HTTPS``` | Source: ```Anywhere-IPv4 (0.0.0.0/0)```
-	- Rule 3: Type: ```SSH``` | Source: ```My IP``` (Crucial for secure access later)
+	- Rule 3: Type: ```SSH``` | Source: Custom ──> **Paste your numeric IPv4 address** from icanhazip.com followed by **/32** (e.g., 56.124.68.187/32). *(Note: Avoid selecting the generic "My IP" console shortcut if your browser is running on an IPv6 network profile, as it will break your terminal's authentication path)*.
+
 5. Click Create security group.
 
 ## Step 2: Create the Target Group & Application Load Balancer
@@ -68,9 +69,15 @@ A Launch Template tells the Auto Scaling Group exactly what kind of machine to s
 3. **Application and OS Images (AMI)**: Select **Amazon Linux 2023 AMI** (Free tier eligible).
 4. **Instance type**: Select ```t3.micro``` or ```t2.micro```.
 5. **Key pair**: Select your existing SSH key pair.
-6. **Network settings**: Select an existing security group and choose ```web-tier-sg```.
-7. Scroll down to the very bottom and expand Advanced details.
-8. Scroll to the ```User data``` text field at the absolute bottom and paste the following bash script. This script automatically installs an Apache web server, sets up a visual status homepage, and installs the utility we need to stress test the CPU later:
+6. **Network settings**: 
+    - Do not select a subnet or security group in the top dropdown fields. Leave them as "Don't include in launch template".
+    - Scroll down to the bottom of the network box and click **Add network interface**.
+    - Under the new **Network Interface 0** card that appears, configure these precise values:
+        - **Security groups**: Select ```web-tier-sg```.
+        - **Auto-assign public IP**: Change this dropdown field to **`Enable`**. *(This ensures every server launched by the ASG automatically receives a numeric Public IPv4 address for SSH).*
+7. Scroll down to the very bottom and expand **Advanced details**.
+8. Scroll to the ```User data``` text field at the absolute bottom and paste the following corrected bash script:
+9. Scroll to the ```User data``` text field at the absolute bottom and paste the following bash script. This script automatically installs an Apache web server, sets up a visual status homepage, and installs the utility we need to stress test the CPU later:
 ```bash
 #!/bin/bash
 # Update OS and install Apache Web Server + Stress engine
@@ -81,11 +88,12 @@ dnf install -y httpd stress
 systemctl start httpd
 systemctl enable httpd
 
-# Create a dynamic homepage showing system stats and instance details
+# Corrected: Create a dynamic homepage using the full internal AWS IMDS IP address
 INSTANCE_ID=$(curl -s http://169.254.169)
 AVAILABILITY_ZONE=$(curl -s http://169.254.169)
 
-cat <<EOF > /var/html/index.html
+# Corrected: Standardize target output path to /var/www/html/index.html
+cat <<EOF > /var/www/html/index.html
 <!DOCTYPE html>
 <html>
 <head>
@@ -120,7 +128,10 @@ Now we tie the Launch Template and Load Balancer together with a dynamic rule th
 4. **Configure advanced options**:
     - Under **Load balancing**, check **Attach to an existing load balancer**.
     - Choose **Select from your Amazon EC2 Auto Scaling target groups** and pick ```web-target-group```.
-	- Under **Health checks**, check **Elastic Load Balancing (ELB)** health checks. Click **Next**.
+	- Under **Health checks**, check **Elastic Load Balancing (ELB)** health checks.
+	- **Health check grace period**: Set this value to 300 seconds (5 minutes). *(This prevents the ASG from panicking and spawning an accidental second server while the first machine is still executing its initialisation updates)*.
+	• Click Next.
+
 5. Configure group size and scaling policies:
     - **Desired capacity**: ```1```
 	- **Minimum capacity**: ```1```
