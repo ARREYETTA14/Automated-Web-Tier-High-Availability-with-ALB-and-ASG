@@ -56,7 +56,7 @@ The Load Balancer acts as the front door, distributing traffic to the instances 
 4. **Scheme**: ```Internet-facing``` | IP address type: ```IPv4```
 5. **Network mapping**: Select your VPC and check at least two Subnets/Availability Zones (e.g., sa-east-1a and sa-east-1b).
 6. **Security groups**: Remove the default group and select your newly created ```web-tier-sg```.
-7. **Listeners and routing**: Under Protocol HTTP Port 80, set the default action to Forward to and select web-target-group.
+7. **Listeners and routing**: Under Protocol HTTP Port 80, set the default action to **Forward to target groups** and select **web-target-group**.
 8. Click **Create load balancer**. *Note the DNS Name (e.g., ```://amazonaws.com```) once it shifts to an "Active" state*.
 
 ## Step 3: Create a Launch Template
