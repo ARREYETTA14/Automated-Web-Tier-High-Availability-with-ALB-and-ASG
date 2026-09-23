@@ -27,13 +27,13 @@ Before creating the load balancer or instances, we need a Security Group that al
 1. Open the **AWS Management Console** and navigate to **VPC > Security groups**.
 2. Click **Create security group**.
 3. Configure the following details:
-	• **Security group name**: ```web-tier-sg```
-	• **Description**: ```Allow HTTP and SSH access```
-	• **VPC**: Select your default VPC.
+    - **Security group name**: ```web-tier-sg```
+	- **Description**: ```Allow HTTP and SSH access```
+	- **VPC**: Select your default VPC.
 4. Under Inbound rules, add the following three rules:
-	• Rule 1: Type: ```HTTP``` | Source: ```Anywhere-IPv4 (0.0.0.0/0)```
-	• Rule 2: Type: ```HTTPS``` | Source: ```Anywhere-IPv4 (0.0.0.0/0)```
-	• Rule 3: Type: ```SSH``` | Source: ```My IP``` (Crucial for secure access later)
+    - Rule 1: Type: ```HTTP``` | Source: ```Anywhere-IPv4 (0.0.0.0/0)```
+	- Rule 2: Type: ```HTTPS``` | Source: ```Anywhere-IPv4 (0.0.0.0/0)```
+	- Rule 3: Type: ```SSH``` | Source: ```My IP``` (Crucial for secure access later)
 5. Click Create security group.
 
 ## Step 2: Create the Target Group & Application Load Balancer
@@ -118,18 +118,18 @@ Now we tie the Launch Template and Load Balancer together with a dynamic rule th
 2. Name: ```web-asg``` | **Launch template**: Choose web-launch-template and click Next.
 3. **Network**: Choose your VPC and select the **same subnets** you assigned to your Load Balancer in Step 2. Click **Next**.
 4. **Configure advanced options**:
-	• Under **Load balancing**, check Attach to an existing load balancer.
-	• Choose **Select from your Amazon EC2 Auto Scaling target groups** and pick ```web-target-group```.
-	• Under **Health checks**, check **Elastic Load Balancing (ELB)** health checks. Click **Next**.
+    - Under **Load balancing**, check Attach to an existing load balancer.
+    - Choose **Select from your Amazon EC2 Auto Scaling target groups** and pick ```web-target-group```.
+	- Under **Health checks**, check **Elastic Load Balancing (ELB)** health checks. Click **Next**.
 5. Configure group size and scaling policies:
-	• **Desired capacity**: ```1```
-	• **Minimum capacity**: ```1```
-	• **Maximum capacity**: ```3``` (This keeps 1 machine baseline, but allows scaling up to 3 during traffic spikes)
+    - **Desired capacity**: ```1```
+	- **Minimum capacity**: ```1```
+	- **Maximum capacity**: ```3``` (This keeps 1 machine baseline, but allows scaling up to 3 during traffic spikes)
 6. **Automatic scaling policies**:
-	• Select **Target tracking scaling policy**.
-	• **Metric type**: ```Average CPU utilisation```
-	• **Target value**: ```50``` (This dictates that as CPU utilisation reaches ≥ 50%, it triggers the ASG to scale out)
-	• **Instance warmup**: ```60``` seconds.
+    - Select **Target tracking scaling policy**.
+	- **Metric type**: ```Average CPU utilisation```
+	- **Target value**: ```50``` (This dictates that as CPU utilisation reaches ≥ 50%, it triggers the ASG to scale out)
+	- **Instance warmup**: ```60``` seconds.
 7. Click **Next**, skip notifications/tags, and **click Create Auto Scaling group**.
 Observe: Within 1-2 minutes, the ASG will launch your very first base instance automatically. You can confirm this by going to **EC2 > Instances**.
 
@@ -140,12 +140,12 @@ Now we will simulate a high-traffic production scenario by forcing the single ba
 1. Verify the Load Balancer Front Door
 Copy the **DNS Name** of your ALB (from Step 2B) and paste it into a web browser. You should see a white screen with an AWS card reading: "Hello from Your Automated Web Tier!" along with the specific Instance ID.
 2. **Connect and Inject the CPU Spike**
-   • Go to your EC2 Instances dashboard and locate the running instance created by the ASG.
-   • Connect to it via SSH using your terminal:
+   - Go to your EC2 Instances dashboard and locate the running instance created by the ASG.
+   - Connect to it via SSH using your terminal:
 ```bash
 ssh -i your-key.pem ec2-user@your-instance-public-ip
 ```
-  • Run the ```stress``` application we installed via user data to spin up intensive mathematical tasks across 4 CPU cores:
+   - Run the ```stress``` application we installed via user data to spin up intensive mathematical tasks across 4 CPU cores:
 ```bash
 sudo stress --cpu 4 --timeout 600
 ```
