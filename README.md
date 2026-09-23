@@ -4,20 +4,20 @@ This is a scalable application architecture which scales up upon an increase in 
 ## Architecture Overview
 
 ```plain
-                  [ Internet Traffic ]
-                           │
-                           ▼
-              [ Application Load Balancer ]
-                           │
-             ┌─────────────┴─────────────┐
-             ▼                           ▼
-    [ EC2 Instance 1 ]          [ EC2 Instance 2 (Scaled) ]
-(Always Running / Min: 1)       (Spins up if CPU >= 50%)
-             │                           │
-             └─────────────┬─────────────┘
-                           ▼
-                 [ Amazon CloudWatch ] 
-            (Monitors CPU & Triggers ASG)
+								  [ Internet Traffic ]
+										   │
+										   ▼
+							  [ Application Load Balancer ]
+										   │
+							 ┌─────────────┴─────────────┐
+							 ▼                           ▼
+					[ EC2 Instance 1 ]          [ EC2 Instance 2 (Scaled) ]
+					(Always Running / Min: 1)       (Spins up if CPU >= 50%)
+							 │                           │
+							 └─────────────┬─────────────┘
+										   ▼
+								 [ Amazon CloudWatch ] 
+							(Monitors CPU & Triggers ASG)
 ```
 
 ## Step 1: Create a Custom VPC Security Group
