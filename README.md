@@ -118,7 +118,7 @@ Now we tie the Launch Template and Load Balancer together with a dynamic rule th
 2. Name: ```web-asg``` | **Launch template**: Choose web-launch-template and click Next.
 3. **Network**: Choose your VPC and select the **same subnets** you assigned to your Load Balancer in Step 2. Click **Next**.
 4. **Configure advanced options**:
-    - Under **Load balancing**, check Attach to an existing load balancer.
+    - Under **Load balancing**, check **Attach to an existing load balancer**.
     - Choose **Select from your Amazon EC2 Auto Scaling target groups** and pick ```web-target-group```.
 	- Under **Health checks**, check **Elastic Load Balancing (ELB)** health checks. Click **Next**.
 5. Configure group size and scaling policies:
